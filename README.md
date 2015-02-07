@@ -1,5 +1,5 @@
 # HiPHP
-HiPHP is a lightweight php framework, which base on <strong>MVC</strong> and <strong>DAO</strong>.
+HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <strong>DAO</strong>.
 
 
 ## Features
