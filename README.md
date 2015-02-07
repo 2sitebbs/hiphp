@@ -3,10 +3,10 @@ HiPHP is a lightweight php framework, which base on <strong>MVC</strong> and <st
 
 
 ## Features
-* Small: The core code size is <strong>75.7KB</strong>, and only <strong>25.4KB</strong> after zip.
-* Quick: You can easily build a page who can run in less than 100ms.
-* Easy: You can read the all core code and build projects with it in an hour.
-* Flexible: You can use any original PHP code with HiPHP, but not depends on it too much.
+* <em>Small</em>: The core code size is <strong>75.7KB</strong>, and only <strong>25.4KB</strong> after zip.
+* <em>Quick</em>: You can easily build a page who can run in less than 100ms.
+* <em>Easy</em>: You can read the all core code and build projects with it in an hour.
+* <em>Flexible</em>: You can use any original PHP code with HiPHP, but not depends on it too much.
 
 
 ## For who ?
