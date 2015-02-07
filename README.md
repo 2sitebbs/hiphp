@@ -2,6 +2,21 @@
 HiPHP is a lightweight php framework, which base on MVC and DAO.
 
 
+## Features
+* Small: The core code size is <strong>75.7KB</strong>, and only <strong>25.4KB</strong> after zip.
+* Quick: You can easily build a page who can run in less than 100ms.
+* Easy: You can read the all core code and build projects with it in an hour.
+* Flexible: You can use any original PHP code with HiPHP, but not depends on it too much.
+
+
+## For who ?
+* Fresh PHPers.
+* F2E guys, those who want learn some php and mysql skills.
+* Site developers who want build the whole site by himself.
+* Java developers who want use php to build a site.
+* Developers who need a simple php framework.
+
+
 ## HiPHP基本目录结构
 <pre>
 │── core
