@@ -1,4 +1,4 @@
 # hiphp
-HiPHP is a slight php framework, which base on MVC and DAO.
+HiPHP is a lightweight php framework, which base on MVC and DAO.
 
 Comming soon...
