@@ -20,7 +20,7 @@ $config[NEEDMONGODB] = false;    //mongodb支持
  * controll logical code here
  * {{{
  */
-Class AppController extends Controller {
+Class DefaultController extends AppController {
 
     //默认动作
     public function index() {

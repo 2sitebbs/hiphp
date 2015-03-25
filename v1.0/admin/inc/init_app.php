@@ -22,3 +22,6 @@ require_once "{$appIncPath}/../dao/app_cacheread.php";
 require_once "{$appIncPath}/../dao/mongo_app_readapi.php";
 require_once "{$appIncPath}/../dao/mongo_app_writeapi.php";
 require_once "{$appIncPath}/../dao/mongo_app_cacheread.php";
+
+//app controller
+require_once "{$appIncPath}/../controller/appcontroller.php";
