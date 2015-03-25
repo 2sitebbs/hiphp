@@ -6,12 +6,21 @@
 */
 if (!defined('SUPERUSER')) {define('SUPERUSER', 'superuser');}
 if (!defined('SUPERUSERPASSWORD')) {define('SUPERUSERPASSWORD', 'superuserpassword');}
+if (!defined('SITEID')) {define('SITEID', 'siteappid');}
+if (!defined('SITEIDS')) {define('SITEIDS', 'siteappids');}
+if (!defined('SITENAMES')) {define('SITENAMES', 'sitenames');}
 
 $config_app = array(
-    SITENAME => 'hiphp前端示例',
+    SITENAME => 'HiPHP前端示例',
+    SITENAMES => array(
+            LANG_ZHCN => 'HiPHP前端示例',
+            LANG_ZHTW => 'HiPHP前端示例',
+            LANG_EN => 'HiPHP',
+        ),
+
     VERSION => '1.0',
     //ROOTDOMAIN => (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'hiphp.2sitebbs.com'),
-    THEME => 'default',         //皮肤名
+    THEME => (isset($_GET['theme']) ? $_GET['theme'] : 'default'),         //皮肤名
 
     //此密码前缀请务必修改！！
     PREKEY4PASSWORD => 'hiphp_',/*{{{*/
@@ -38,7 +47,21 @@ $config_app = array(
     /*新增配置项目*/
     // SUPERUSER => 'admin',
     // SUPERUSERPASSWORD => 'phpwebadmin',
+
+    /*单独网站配置*/
+    SITEID => 96,   //网站ID
+    SITEIDS => array(
+            LANG_ZHCN => '96',
+            LANG_ZHTW => '96',
+            LANG_EN => '97',
+        ),
 );
 
 //merge config
 $config = isset($config) ? array_merge($config, $config_app) : $config_app;
+
+//重置语言对应的网站
+if (isset($lang) && isset($config[SITEIDS][$lang])) {
+    $config[SITEID] = $config[SITEIDS][$lang];
+    $config[SITENAME] = $config[SITENAMES][$lang];
+}

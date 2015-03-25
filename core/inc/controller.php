@@ -72,6 +72,13 @@ Class Controller {
         $this->dao_mongo_write = $dao_mongo_write;
     }
 
+    //获取视图变量
+    public function getViewVars($key = '') {
+        global $pageData;
+        $this->pageData = $pageData;
+        return empty($key) ? $pageData : @$pageData[$key];
+    }
+
     //设置布局、视图目录和视图
     public function configView($viewName = 'index', $viewGroup = 'default', $layout = 'main') {
         $this->config[VIEWNAME] = $viewName;

@@ -52,6 +52,7 @@ $includeOk = @include_once "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controlle
 if (!$includeOk) {
     $errorMsg = <<<eof
     Controller {$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controller/{$_config[APPCONTROLLER]}.php not exists.
+
 eof;
     die($errorMsg);
 }
@@ -62,7 +63,9 @@ $config = isset($_config) ? array_merge($_config, $config) : $config;
 
 
 //执行控制器中的动作
-$appController = new AppController();				//实例化控制器
+$controllerName = ucfirst(strtolower($_config[APPCONTROLLER])) . "Controller";
+$appController = new $controllerName();             //实例化控制器 
 $appController->configView($_config[APPACTION], $_config[APPCONTROLLER]);  //设置默认视图目录和默认视图
-$appController->$_config[APPACTION]();  			//执行控制器
-$appController->render();               			//渲染视图
+$appController->init();                                                 //初始化控制器
+$appController->$_config[APPACTION]();  	          //执行控制器
+$appController->render();               		          //渲染视图
