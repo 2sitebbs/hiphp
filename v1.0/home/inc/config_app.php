@@ -9,6 +9,8 @@ if (!defined('SUPERUSERPASSWORD')) {define('SUPERUSERPASSWORD', 'superuserpasswo
 if (!defined('SITEID')) {define('SITEID', 'siteappid');}
 if (!defined('SITEIDS')) {define('SITEIDS', 'siteappids');}
 if (!defined('SITENAMES')) {define('SITENAMES', 'sitenames');}
+if (!defined('URLREWRITE')) {define('URLREWRITE', 'urlrewrite');}
+
 
 $config_app = array(
     SITENAME => 'HiPHP前端示例',
@@ -23,8 +25,9 @@ $config_app = array(
     THEME => (isset($_GET['theme']) ? $_GET['theme'] : 'default'),         //皮肤名
 
     //此密码前缀请务必修改！！
-    PREKEY4PASSWORD => 'hiphp_',/*{{{*/
+    PREKEY4PASSWORD => 'hiphp_',
 
+    /*{{{*/
     TABLEPRE => '',             //表名前缀
     DBDRIVER_READ => array(     //读数据帐号配置
         DBHOST => 'localhost',
@@ -42,11 +45,8 @@ $config_app = array(
         DBPORT => '3306',
     ),
 
-    DEBUG => true,/*}}}*/       //开启debug模式
-
-    /*新增配置项目*/
-    // SUPERUSER => 'admin',
-    // SUPERUSERPASSWORD => 'phpwebadmin',
+    DEBUG => true,       //开启debug模式
+    /*}}}*/
 
     /*单独网站配置*/
     SITEID => 96,   //网站ID
@@ -55,6 +55,8 @@ $config_app = array(
             LANG_ZHTW => '96',
             LANG_EN => '97',
         ),
+
+    URLREWRITE => false,       //开启nginx url rewrite
 );
 
 //merge config

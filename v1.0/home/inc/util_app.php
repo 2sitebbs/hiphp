@@ -74,15 +74,25 @@ Class AppUtil extends Util{
 
     //获取分类页Url
     public static function getCateUrl($cate) {
+        global $config;
+        
         $controller = $cate['cate'] != 'info' ? 'cate' : 'detail';
         $cateUrl = "/?controller={$controller}&action={$cate['cate']}&nav={$cate['enname']}&gid={$cate['gid']}&cate=" . urlencode($cate['cnname']);
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $cateUrl = "/{$controller}_{$cate['cate']}_{$cate['gid']}_" . urlencode($cate['cnname']) . ".html?nav={$cate['enname']}";
+        }
         return self::addLang($cateUrl);
     }
 
     //获取详细页Url
     public static function getDetailUrl($article) {
+        global $config;
+
         $controller = 'detail';
         $articleUrl = "/?controller={$controller}&action={$article['groupcate']}&cid={$article['cid']}&title=" . urlencode($article['title']);
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $articleUrl = "/{$controller}_{$article['groupcate']}_{$article['cid']}_" . urlencode($article['title']) . ".html";
+        }
         return self::addLang($articleUrl);
     }
 
