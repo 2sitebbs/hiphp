@@ -24,15 +24,15 @@ Class Controller {
         //dao implement
         if ($config[NEEDMMCACHED]) {    //优先使用memcached扩展
             $memcache = new MMCached($config[ROOTDOMAIN]);
-            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'AppCacheRead');
             $dao_read->setCacheHandler($memcache);
         }else if ($config[NEEDMMCACHE]) {
             $memcache = new MMCache($config[ROOTDOMAIN]);
-            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'AppCacheRead');
             $dao_read->setCacheHandler($memcache);
         }else if ($config[NEEDREDIS]) {
             $rediscache = new RedisCache($config[ROOTDOMAIN]);
-            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+            $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'AppCacheRead');
             $dao_read->setCacheHandler($rediscache);
         }
 
@@ -50,15 +50,15 @@ Class Controller {
                 $dao_mongo_read = MongoAppReadApis::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
             }else if ($config[NEEDMMCACHED]) {
                 $memcache = new MMCached($config[ROOTDOMAIN]);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($memcache);
             }else if ($config[NEEDMMCACHE]) {
                 $memcache = new MMCache($config[ROOTDOMAIN]);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($memcache);
             }else if ($config[NEEDREDIS]) {
                 $rediscache = new RedisCache($config[ROOTDOMAIN]);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($rediscache);
             }
             $dao_mongo_write = MongoAppWriteApis::getImplement($config[DBDRIVER_WRITE], $config[TABLEPRE]);
@@ -72,18 +72,33 @@ Class Controller {
         $this->dao_mongo_write = $dao_mongo_write;
     }
 
+    /**
+    * 保存变量供视图使用
+    * 调用方法：$this->setViewVar($key, $val);
+    * 调用方法：$this->setViewVar(array('a'=>'x'));
+    */
+    public function setViewVar($arr, $val = null) {
+        global $pageData;
+        Util::setViewVar($arr, $val);
+        
+        $this->pageData = $pageData;
+        return $this->pageData;
+    }
+
     //获取视图变量
     public function getViewVars($key = '') {
         global $pageData;
         $this->pageData = $pageData;
-        return empty($key) ? $pageData : @$pageData[$key];
+        return empty($key) ? $this->pageData : @$this->pageData[$key];
     }
 
     //设置布局、视图目录和视图
-    public function configView($viewName = 'index', $viewGroup = 'default', $layout = 'main') {
+    public function configView($viewName = 'index', $viewGroup = 'default', $layout = 'main', $theme = 'default') {
+        global $config;
         $this->config[VIEWNAME] = $viewName;
         $this->config[VIEWGROUP] = $viewGroup;
         $this->config[LAYOUT] = $layout;
+        $this->config[THEME] = $config[THEME] = $theme;
     }
 
     //退出控制器，且不渲染视图

@@ -38,6 +38,7 @@ define('NEEDMMCACHED', 'mmcached_needed');
 define('NEEDREDIS', 'redis_needed');
 define('NEEDSPHINX', 'sphinx_needed');
 define('NEEDMONGODB', 'mongodb_needed');
+define('NOTNEEDLOGIN', 'controller_notNeedLogin');
 
 //error msg for db init
 define('DBCONNECTFAIL', 'dberror_dbconnectfail');

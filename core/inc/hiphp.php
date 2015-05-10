@@ -13,6 +13,7 @@ require_once "{$_incPath}/../dao/mongo_api_write.php";
 require_once "{$_incPath}/../dao/cache.php";
 require_once "{$_incPath}/../dao/cached.php";
 require_once "{$_incPath}/../dao/redis.php";
+require_once "{$_incPath}/../dao/cache_io.php";
 
 
 //enable error_reporting
@@ -38,7 +39,7 @@ function error_handler($errno , $errstr , $errfile , $errline , $errcontext) {
 错误上下文：{$context}
 
 eof;
-    error_log("ERROR----------: \n{$error}\n", 3, '/var/log/debug.log');
+    @error_log("ERROR----------: \n{$error}\n", 3, '/var/log/debug.log');
 }
 set_error_handler('error_handler');
 */
