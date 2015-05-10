@@ -70,3 +70,4 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
     if (!-e $request_filename) {
         rewrite ^/(\w+)_(\w+)_([0-9]+)_(.+)\.html$ /?controller=$1&action=$2&id=$3&txt=$4 last;
     }
+
