@@ -17,7 +17,7 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 * Developers who need a simple php framework.
 
 
-## HiPHP基本目录结构
+## Directory tree of HiPHP
 <pre>
 │── core
 │   │── dao
