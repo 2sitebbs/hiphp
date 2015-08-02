@@ -60,6 +60,11 @@ $_config[THEMECONTEXT] = "{$currentDir}/{$_config[APPVERSION]}";
 $_config[THEMEDIR] = "{$_config[APPVERSION]}/{$_config[APPMAIN]}";
 
 
+//初始化
+$libPath = "{$currentDir}/core";          //设定HIPHP的路径，可将core保存到一个公用目录以便多个项目使用
+require_once "{$libPath}/inc/hiphp.php";     //引入HIPHP
+require_once "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/inc/init_app.php";		//包含app所需文件
+
 //尝试加载控制器中的动作
 $includeOk = @include_once "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controller/{$_config[APPCONTROLLERGROUP]}{$_config[APPCONTROLLER]}.php";
 if (!$includeOk) {
@@ -69,8 +74,7 @@ eof;
     die($errorMsg);
 }
 
-
 //call action
-$appController = new AppController();
-$appController->configView($_config[APPACTION], $_config[APPCONTROLLER]);  //设置默认视图目录和默认视图
+$controllerName = ucfirst(strtolower($_config[APPCONTROLLER])) . "Controller";
+$appController = new $controllerName();
 $appController->$_config[APPACTION]();  //执行控制器

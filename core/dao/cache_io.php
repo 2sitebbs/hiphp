@@ -84,16 +84,20 @@ class CacheRead {
      **/
     protected function getCacheKey($method, $arguments) {
         $out = $this->parseMethod($method);
+
+        /*
         $tableName = $out['table'];
         $tableKey = 'keys_' . $this->getTablePre() . $tableName;
-
         $tableCacheKeys = $this->cache->get($tableKey);
+        */
 
+        $callCacheKey = '';
         switch ($out['method']) {
             case 'get':
                 //返回缓存数据的key
                 $callCacheKey = md5("{$method}_" . md5(serialize($arguments)));   //函数名 + 参数md5作key
 
+                /*
                 if (!empty($tableCacheKeys) && !in_array($callCacheKey, $tableCacheKeys)) {
                     $tableCacheKeys[] = $callCacheKey;
                     $this->cache->set($tableKey, $tableCacheKeys);  //save into cache
@@ -104,21 +108,26 @@ class CacheRead {
                     //clean data
                     $this->cache->set($callCacheKey, '', 1);
                 }
+                */
 
                 break;
 
             case 'add':
             case 'update':
             case 'delete':
+                /*
                 if (!empty($tableCacheKeys) && in_array($callCacheKey, $tableCacheKeys)) {
                     $matchKey = array_search($callCacheKey, $tableCacheKeys);
 
+                    
                     //clean data
                     $this->cache->set($callCacheKey, '', 1);
 
                     unset($tableCacheKeys[$matchKey]);  //删除缓存key
                     $this->cache->set($tableKey, $tableCacheKeys);  //save into cache
+                    
                 }
+                */
 
                 //返回缓存数据的key
                 $callCacheKey = '';
@@ -127,7 +136,7 @@ class CacheRead {
 
             default:
                 break;
-        }        
+        }
 
         return $callCacheKey;
     }

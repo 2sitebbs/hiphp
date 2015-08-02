@@ -19,7 +19,7 @@ class Base {
 
     function echoError($msg) {
         header('Content-type: text/html; charset=utf-8');
-        die($msg);
+        echo $msg;
     }
 
 }

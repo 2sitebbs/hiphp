@@ -176,7 +176,14 @@ Class Util{
     public static function isWechatBrowser() {
         $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $reg_wechat = '/MicroMessenger\//i';
-        return preg_match($reg_wechat, $userAgent);
+        $isWechat = preg_match($reg_wechat, $userAgent);
+
+        //添加微信浏览器cookie判断
+        if (!$isWechat) {
+            $isWechat = isset($_COOKIE['isWechat']) && $_COOKIE['isWechat'] ? true : false;
+        }
+
+        return $isWechat;
     }
 
     public static function getKeywordFromSrcUrl($url, $reg) {
@@ -407,9 +414,8 @@ Class Util{
         
         //IE 6- check
         if ( $isIE6 ) {
-            //header("Content-type: text/html; charset=utf-8");
-            //echo "Sorry, 我们暂时不支持IE 6及以下版本的浏览器，推荐使用Google浏览器Chrome。";
-            header("Location: http://www.twbusi.com/ie6dead/");
+            header("Content-type: text/html; charset=utf-8");
+            echo "Sorry, 我们暂时不支持IE 6及以下版本的浏览器，推荐使用Google浏览器Chrome。";
             exit;
         }
 
@@ -437,7 +443,9 @@ Class Util{
         if (isset($config[DEBUG]) && $config[DEBUG]) {
             $pageEndTime = microtime(true);
             $pageTimeCost = $pageEndTime - $pageStartTime;
-            echo "<!-- {$pageTimeCost} -->";
+            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+            $ips = explode('.', $serverIp);
+            echo "<!--{$pageTimeCost} {$ips[3]} {$config[APPVERSION]}-->";
         }
 
         exit;
@@ -558,9 +566,10 @@ Class Util{
         return $ip;
     }
 
+    //cookie保存key的前缀
     public static function getCookiePre() {
         global $config;
-        return md5($config[SITENAME] . $config[TABLEPRE]);
+        return $config[APPVERSION];
     }
 
     public static function setcookie($key, $val, $expire = 86400, $path = '/') {
@@ -603,6 +612,42 @@ Class Util{
         }
 
         return $newArr;
+    }
+
+    //签名检查
+    public static function checkSignature($privateKey = '') {
+        if (!isset($_REQUEST["signature"])) {return false;}
+
+        $signature = $_REQUEST["signature"];
+        $timestamp = $_REQUEST["timestamp"];
+        $nonce = $_REQUEST["nonce"];
+
+        $time = time();
+        if ($time - $timestamp > 5) {
+            return false;
+        }
+
+        $token = empty($privateKey) ? YUNAPPSECRET : $privateKey;
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
+        if( $tmpStr == $signature ){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    //生成签名
+    public static function generateSignature($timestamp, $nonce, $privateKey = '') {
+        $token = empty($privateKey) ? YUNAPPSECRET : $privateKey;
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $signature = sha1( $tmpStr );
+
+        return $signature;
     }
 
 }

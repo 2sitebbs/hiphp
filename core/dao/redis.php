@@ -9,7 +9,7 @@ class RedisCache {
     private $redis;
     private $keyPre;
 
-    public function __construct($keyPre='', $host='127.0.0.1', $port='6379') {
+    public function __construct($keyPre='', $host='127.0.0.1', $port='6379', $authPwd = '') {
         $this->keyPre = $keyPre;
 
         //try to connect
@@ -17,6 +17,10 @@ class RedisCache {
         $serverOk = $this->redis->connect($host, $port);
         if (!$serverOk) {
             die('Error: redis connect failed.');
+        }
+
+        if ($authPwd) {     //auth with password
+            $this->redis->auth($authPwd);
         }
     }
 
@@ -34,7 +38,7 @@ class RedisCache {
 
     public function get($key) {
         $val = $this->redis->get($this->keyPre . $key);
-        if (!empty($val) && is_string($val) && preg_match('/^\w+:\d+:\{/i', $val)) {
+        if (!empty($val) && is_string($val) && preg_match('/^\w+:\d+.*/i', $val)) {
             try {
                 $out = unserialize($val);
             } catch (Exception $e) {
@@ -129,6 +133,11 @@ class RedisCache {
     public function zRange($key, $start = 0, $end = -1, $withscores = false) {
 		$key = $this->keyPre . $key;
 		return $this->redis->zRange($key, $start, $end, $withscores);
+    }
+
+    public function zRangeByScore($key, $start = 0, $end =100, $option=array()) {
+        $key = $this->keyPre . $key;
+        return $this->redis->zRangeByScore($key, $start, $end, $option);
     }
 
     public function zRevRange($key, $start = 0, $end = -1, $withscores = false) {

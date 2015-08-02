@@ -14,7 +14,7 @@ class DAOWrapper extends Base {
         $this->driver = $driver;
         $this->link = $this->connect($driver);
         if (!$this->link) {
-            $this->echoError("DB connection error by {$driver[DBUSER]}: " . mysqli_connect_error());
+            $this->echoError("DB connection error: " . mysqli_connect_error());
         }
     }
 
@@ -56,7 +56,6 @@ class DAOWrapper extends Base {
             (!empty($order) ? " order by $order" : "") .
             (!empty($limit) ? " limit $limit" : "");
         $rs = mysqli_query($this->link, $sql);
-        //error_log("SQL: {$sql}\n", 3, '/var/log/debug.log');
         return $this->getArray($rs);
     }
 
@@ -106,7 +105,6 @@ class DAOWrapper extends Base {
         //反斜杠处理
         $sql = str_replace('\\', '\\\\', $sql);
 
-        error_log("Update SQL: {$sql}\n", 3, '/var/log/debug.log');
         return mysqli_query($this->link, $sql);
     }
 
@@ -114,7 +112,6 @@ class DAOWrapper extends Base {
         $sql = "delete from $table" .
             (!empty($condition) ? " where $condition" : "") .
             ($limit > 0 ? " limit $limit" : "");
-        //error_log("Delete SQL: {$sql}\n", 3, '/var/log/debug.log');
         return mysqli_query($this->link, $sql);
     }
 
@@ -124,7 +121,6 @@ class DAOWrapper extends Base {
     }
 
     function query($sql) {
-        //error_log("Query SQL: {$sql}\n", 3, '/var/log/debug.log');
         return mysqli_query($this->link, $sql);
     }
 

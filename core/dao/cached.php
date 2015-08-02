@@ -9,7 +9,7 @@ class MMCached {
     private $mem;
     private $keyPre;
 
-    public function __construct($keyPre = '', $host = '127.0.0.1', $port = 11211) {
+    public function __construct($keyPre = '', $host = '127.0.0.1', $port = 11211, $authUser = '', $authPwd = '') {
         $this->keyPre = $keyPre;
 
         //try to connect
@@ -19,6 +19,10 @@ class MMCached {
         $serverOk = $this->mem->addServer($host, $port); 
         if (!$serverOk) {
             die('Error: memcached connect failed.');
+        }
+
+        if ($authUser && $authPwd) {     //auth with username and password
+            $this->mem->setSaslAuthData($authUser, $authPwd);
         }
     }
 

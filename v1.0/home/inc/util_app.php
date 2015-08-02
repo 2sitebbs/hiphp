@@ -71,6 +71,28 @@ Class AppUtil extends Util{
 
         return $url;
     }
+    
+    //通用获取某个控制器的某个动作的网址Url
+    public static function getUrl($controller, $action = 'index', $arrParameters = array()) {
+        global $config;
+
+        $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . preg_replace('/\/[^\/]*$/', '', $_SERVER['REQUEST_URI']);
+
+        $url = "/?controller={$controller}&action={$action}&v={$config[APPVERSION]}";
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $url = "/{$controller}_{$action}.html?v={$config[APPVERSION]}";
+        }
+
+        foreach ($arrParameters as $key => $val) {
+            $url .= "&{$key}=" . urlencode($val);
+        }
+
+        //添加时间戳
+        $time = time();
+        $url .= "&t={$time}";
+
+        return $baseUrl . self::addLang($url);
+    }
 
     //获取分类页Url
     public static function getCateUrl($cate) {

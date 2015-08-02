@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/constant.php';
 $config = array(
     SITENAME => 'hiphp',
     VERSION => '1.0',
-    ROOTDOMAIN => (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'hiphp.2sitebbs.com'),
+    ROOTDOMAIN => (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'hiphp.org'),
     THEME => 'default',
     LAYOUT => 'main',
     VIEWGROUP => 'default',
