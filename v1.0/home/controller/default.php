@@ -53,6 +53,7 @@ Class DefaultController extends AppController {
 
     //测试动作
     public function test() {
+        header("Content-type:text/html; charset=utf-8");
         echo '<h1>Welcome to home</h1>';
         echo '<pre>';
         print_r($this->config);

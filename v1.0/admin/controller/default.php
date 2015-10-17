@@ -44,6 +44,7 @@ Class DefaultController extends AppController {
 
     //默认动作
     public function test() {
+        header("Content-type:text/html; charset=utf-8");
         echo '<h1>Welcome to admin</h1>';
         echo '<pre>';
         print_r($this);
