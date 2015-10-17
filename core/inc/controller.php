@@ -150,7 +150,7 @@ Class Controller {
     * 调用方法：$this->setViewVar($key, $val);
     * 调用方法：$this->setViewVar(array('a'=>'x'));
     */
-    public function setViewVar($arr, $val = null) {
+    protected function setViewVar($arr, $val = null) {
         global $pageData;
         Util::setViewVar($arr, $val);
         
@@ -159,7 +159,7 @@ Class Controller {
     }
 
     //获取视图变量
-    public function getViewVars($key = '') {
+    protected function getViewVars($key = '') {
         global $pageData;
         $this->pageData = $pageData;
         return empty($key) ? $this->pageData : @$this->pageData[$key];
@@ -175,7 +175,7 @@ Class Controller {
     }
 
     //退出控制器，且不渲染视图
-    public function quit($isAjax = false) {
+    protected function quit($isAjax = false) {
         global $pageStartTime;
         //do something here before exit controller without render views
 
@@ -188,6 +188,26 @@ Class Controller {
             echo "<!--{$pageTimeCost} {$ips[3]}  {$this->config[APPVERSION]}-->";
         }
         exit;
+    }
+    
+    //输出json格式数据，并退出程序
+    protected function json($data) {
+        $jsonpCallback = isset($_GET['callback']) && !empty($_GET['callback']) ? htmlspecialchars($_GET['callback']) : false;
+
+        //输出json格式数据
+        if ($jsonpCallback) {
+            //回调函数名特殊字符过滤
+            $jsonpCallback = preg_replace('/\W/', '', $jsonpCallback);      //删除除下划线、英文字母和数字之外的字符
+
+            header('Content-type: text/javascript');
+            echo "$jsonpCallback(" . json_encode($data) . ")";
+        }else {
+            header('Content-type: application/json');
+            echo json_encode($data);
+        }
+
+        //退出程序
+        $this->quit('ajax');
     }
 
     //初始化

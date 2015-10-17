@@ -45,11 +45,11 @@ $config_app = array(
     DEBUG => true,/*}}}*/       //开启debug模式
 
     /*新增配置项目*/
-    SITEID => 96,   //网站ID
+    SITEID => 1,   //网站ID
     SITEIDS => array(
-            LANG_ZHCN => '96',
-            LANG_ZHTW => '96',
-            LANG_EN => '97',
+            LANG_ZHCN => '1',
+            LANG_ZHTW => '1',
+            LANG_EN => '1',
         ),
 );
 

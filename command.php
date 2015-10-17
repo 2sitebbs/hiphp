@@ -77,4 +77,5 @@ eof;
 //call action
 $controllerName = ucfirst(strtolower($_config[APPCONTROLLER])) . "Controller";
 $appController = new $controllerName();
+$appController->init();                 //初始化
 $appController->$_config[APPACTION]();  //执行控制器

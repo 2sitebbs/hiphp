@@ -15,6 +15,9 @@ $config[NEEDREDIS] = false;      //redis支持
 $config[NEEDSPHINX] = false;     //sphinx全文索引支持
 $config[NEEDMONGODB] = false;    //mongodb支持
 
+//后台设置
+//$config[NOTNEEDLOGIN] = true;    //不需要登录
+
 
 /**----------------
  * controll logical code here
@@ -28,7 +31,7 @@ Class DefaultController extends AppController {
         $users = $this->dao_read->getUser();
 
         //设置视图访问变量
-        Util::setViewVar('users', $users);
+        $this->setViewVar('users', $users);
 
         //网页SEO内容设置
         $pageName = 'default';
@@ -36,15 +39,7 @@ Class DefaultController extends AppController {
         $pageDescription = 'HiPHP后台演示控制器';
         $pageKeywords = 'HiPHP, 后台演示, 控制器';
 
-        Util::setViewVar(compact('pageName', 'pageTitle', 'pageDescription', 'pageKeywords'));
-
-        /*
-        $themeName = $this->config[THEME];
-        $layoutName = 'main';
-        $viewGroup = 'demo';
-        $viewName = 'demo';
-        Util::render($viewGroup, $viewName, $layoutName, $themeName);
-        */
+        $this->setViewVar(compact('pageName', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     //默认动作

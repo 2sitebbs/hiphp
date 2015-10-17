@@ -23,7 +23,7 @@ class DAOWrapper extends Base {
     }
 
     function __toString() {
-        return "DAO wrapper using connection $this->link.";
+        return "DAO wrapper using connection {$this->link}.";
     }
 
     public static function getWrapper($driver, $new = false) {

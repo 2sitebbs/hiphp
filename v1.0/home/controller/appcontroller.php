@@ -11,9 +11,10 @@ Class AppController extends Controller {
     public function init() {
         if ($this->config[NEEDDB]) {
             //读取数据
+            //$users = $this->dao_read->getUser();
 
             //设置视图访问变量
-            //Util::setViewVar(compact('navigators'));
+            //$this->setViewVar(compact('navigators'));
         }
     }
 }
