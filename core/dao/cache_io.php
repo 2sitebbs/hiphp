@@ -77,59 +77,21 @@ class CacheRead {
 
     /**
      * 获得缓存key
-     * ---------------
-     * 针对同一个表的读数据缓存key保存在缓存以表名为key之一的集合里
-     * 如果是memcache缓存，则直接存数组
-     * 如果是redis缓存，则存集合
      **/
     protected function getCacheKey($method, $arguments) {
         $out = $this->parseMethod($method);
-
-        /*
-        $tableName = $out['table'];
-        $tableKey = 'keys_' . $this->getTablePre() . $tableName;
-        $tableCacheKeys = $this->cache->get($tableKey);
-        */
 
         $callCacheKey = '';
         switch ($out['method']) {
             case 'get':
                 //返回缓存数据的key
                 $callCacheKey = md5("{$method}_" . md5(serialize($arguments)));   //函数名 + 参数md5作key
-
-                /*
-                if (!empty($tableCacheKeys) && !in_array($callCacheKey, $tableCacheKeys)) {
-                    $tableCacheKeys[] = $callCacheKey;
-                    $this->cache->set($tableKey, $tableCacheKeys);  //save into cache
-                }else if (empty($tableCacheKeys)) {
-                    $tableCacheKeys = array($callCacheKey);
-                    $this->cache->set($tableKey, $tableCacheKeys);  //save into cache
-
-                    //clean data
-                    $this->cache->set($callCacheKey, '', 1);
-                }
-                */
-
                 break;
 
             case 'add':
             case 'update':
             case 'delete':
-                /*
-                if (!empty($tableCacheKeys) && in_array($callCacheKey, $tableCacheKeys)) {
-                    $matchKey = array_search($callCacheKey, $tableCacheKeys);
-
-                    
-                    //clean data
-                    $this->cache->set($callCacheKey, '', 1);
-
-                    unset($tableCacheKeys[$matchKey]);  //删除缓存key
-                    $this->cache->set($tableKey, $tableCacheKeys);  //save into cache
-                    
-                }
-                */
-
-                //返回缓存数据的key
+                //返回空的key
                 $callCacheKey = '';
 
                 break;
@@ -139,13 +101,6 @@ class CacheRead {
         }
 
         return $callCacheKey;
-    }
-
-    //删除某个表的缓存
-    public function deleteCache($tableName) {
-        $tableKey = 'keys_' . $this->getTablePre() . strtolower($tableName);
-        $tableCacheKeys = array();
-        return $this->cache->set($tableKey, $tableCacheKeys);  //clean
     }
 
     //重写getTablePre方法
