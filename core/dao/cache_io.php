@@ -53,7 +53,7 @@ class CacheRead {
         $key = "{$cacheClass}_{$appDaoClass}";
         if (!isset(self::$impl[$key]) || empty(self::$impl[$key])) {
             self::$impl[$key] = new $cacheClass($driver, $tablepre);
-            self::$appReadApi = $appDaoClass::getImplement($driver, $tablepre);
+            self::$appReadApi = call_user_func_array(array($appDaoClass, 'getImplement'), array($driver, $tablepre));
         }
         return self::$impl[$key];
     }

@@ -8,13 +8,6 @@
 require_once 'mongo_app_readapi.php';
 
 class MongoAppCacheRead extends MongoDAOReadApis {
-    protected static $impl;
-    private $cache;
-    private $cacheTime;
-
-    //AppReadApis实例
-    private static $appReadApi;
-
     /**
     * 动态函数调用
     * 不支持永久缓存，如果缓存时间为0，则不缓存，直接从数据库取数据
