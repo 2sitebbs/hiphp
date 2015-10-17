@@ -173,14 +173,14 @@ Class Util{
         return $isIPhone || $isAndroid || $isWindowMobile || $isMobile || $isGoogleMobileBot;
     }
 
+    //判断是否为微信浏览器
     public static function isWechatBrowser() {
-        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-        $reg_wechat = '/MicroMessenger\//i';
-        $isWechat = preg_match($reg_wechat, $userAgent);
+        $isWechat = isset($_COOKIE['isWechat']) && $_COOKIE['isWechat'] ? true : false;
 
-        //添加微信浏览器cookie判断
         if (!$isWechat) {
-            $isWechat = isset($_COOKIE['isWechat']) && $_COOKIE['isWechat'] ? true : false;
+            $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $reg_wechat = '/MicroMessenger\//i';
+            $isWechat = preg_match($reg_wechat, $userAgent);
         }
 
         return $isWechat;
