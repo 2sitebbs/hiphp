@@ -24,6 +24,66 @@ Class Util{
 
         if ($post && !empty($postFields)) {
             curl_setopt($ch, CURLOPT_POST, 1);
+
+            //build query string
+            if (is_array($postFields)) {
+                $postFields = http_build_query($postFields);
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        }
+
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
+    }
+
+    //获取自定义的rest请求方法
+    public static function getRESTMethod() {
+        //默认设置为GET
+        $restMethod = isset($_SERVER['HTTP_RESTMETHOD']) ? strtoupper($_SERVER['HTTP_RESTMETHOD']) : 'GET';
+        $allowedMethods = array(
+            'GET',
+            'POST',
+            'PUT',
+            'DELETE',
+        );
+
+        //如果没指定自定义的请求方法，或者自定义方法不在允许范围内，则取浏览器的request_method
+        if (!in_array($restMethod, $allowedMethods)) {
+            $restMethod = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
+        }
+
+        return $restMethod;
+    }
+
+    //支持自定义REST请求方法
+    public static function restCurl($url, $restMethod = 'GET', $postFields = array(), $timeout = 2) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+
+        $postMethods = array(
+            'POST',
+            'PUT',
+            'DELETE',
+        );
+        if (in_array($restMethod, $postMethods)) {
+            //设置request_method = POST
+            curl_setopt($ch, CURLOPT_POST, 1);
+
+            //设置自定义请求方法
+            $headers = array(
+                "RESTMETHOD: {$restMethod}",
+            );
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+
+        if (!empty($postFields)) {
+            if (is_array($postFields)) {
+                $postFields = http_build_query($postFields);
+            }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
         }
 
@@ -503,7 +563,7 @@ Class Util{
             return false;
         }
 
-        return preg_match($rules[$ruleKey], $val);
+        return empty($val) || preg_match($rules[$ruleKey], $val);
     }
 
     public static function assignErrorMsg($errorMsg, $verifyResult) {
@@ -566,10 +626,9 @@ Class Util{
         return $ip;
     }
 
-    //cookie保存key的前缀
     public static function getCookiePre() {
         global $config;
-        return $config[APPVERSION];
+        return isset($config[COOKIEPRE]) ? $config[COOKIEPRE] : 'hiphp_';
     }
 
     public static function setcookie($key, $val, $expire = 86400, $path = '/') {

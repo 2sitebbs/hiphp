@@ -16,6 +16,8 @@
  * THEMECONTEXT ==> 皮肤上下文路径
  * THEMEDIR ==> 皮肤前端展示路径
  */
+$pageStartTime = microtime(true);   //执行计时
+
 require_once dirname(__FILE__) . '/../core/inc/constant.php';
 
 if (!defined('APPVERSION')) {define('APPVERSION', 'global_app_version');}
@@ -97,5 +99,4 @@ $appController = new $controllerName();             //实例化控制器
 $appController->configView($_config[APPACTION], $_config[APPCONTROLLER], 'main', $config[THEME]);  //设置默认视图目录和默认视图
 $appController->init();                                                 //初始化控制器
 $appController->$_config[APPACTION]();  	          //执行控制器
-$appController->beforeRender();                       //渲染视图之前做一些事情
 $appController->render();             		          //渲染视图

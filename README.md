@@ -68,6 +68,11 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 
 ## Rewrite rules for nginx
     if (!-e $request_filename) {
-        rewrite ^/(\w+)_(\w+)_([0-9]+)_(.+)\.html$ /?controller=$1&action=$2&id=$3&txt=$4 last;
+        rewrite ^/(\w+)_(\w+)\.html$ /?controller=$1&action=$2 last;
+
+        ## REST API support
+        rewrite ^/(\w+)$ /?controller=$1&action=index last;
+        rewrite ^/(\w+)\/(\w+)$ /?controller=$1&action=index&id=$2 last;
+        rewrite ^/(\w+)\/search\/(\w*)$ /?controller=$1&action=index&keyword=$2 last;
     }
 

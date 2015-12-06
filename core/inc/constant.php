@@ -59,6 +59,8 @@ if (!defined('SITEIDS')) {define('SITEIDS', 'siteappids');}
 if (!defined('SITENAMES')) {define('SITENAMES', 'sitenames');}
 if (!defined('URLREWRITE')) {define('URLREWRITE', 'urlrewrite');}
 
+if (!defined('COOKIEPRE')) {define('COOKIEPRE', 'cookiepre');}
+
 if (!defined('COOKIEUID')) {define('COOKIEUID', 'cookieuid');}
 if (!defined('YUNAPPSECRET')) {define('YUNAPPSECRET', 'xinyuemin.com_20141004');}
 

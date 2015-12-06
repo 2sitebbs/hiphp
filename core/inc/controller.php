@@ -165,31 +165,6 @@ Class Controller {
         return empty($key) ? $this->pageData : @$this->pageData[$key];
     }
 
-    //设置布局、视图目录和视图
-    public function configView($viewName = 'index', $viewGroup = 'default', $layout = 'main', $theme = 'default') {
-        global $config;
-        $this->config[VIEWNAME] = $viewName;
-        $this->config[VIEWGROUP] = $viewGroup;
-        $this->config[LAYOUT] = $layout;
-        $this->config[THEME] = $config[THEME] = $theme;
-    }
-
-    //退出控制器，且不渲染视图
-    protected function quit($isAjax = false) {
-        global $pageStartTime;
-        //do something here before exit controller without render views
-
-        //非Ajax请求，且debug开启则输出程序执行耗时
-        if (!$isAjax && $pageStartTime && isset($this->config[DEBUG]) && $this->config[DEBUG]) {
-            $pageEndTime = microtime(true);
-            $pageTimeCost = $pageEndTime - $pageStartTime;
-            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
-            $ips = explode('.', $serverIp);
-            echo "<!--{$pageTimeCost} {$ips[3]}  {$this->config[APPVERSION]}-->";
-        }
-        exit;
-    }
-    
     //输出json格式数据，并退出程序
     protected function json($data) {
         $jsonpCallback = isset($_GET['callback']) && !empty($_GET['callback']) ? htmlspecialchars($_GET['callback']) : false;
@@ -210,9 +185,82 @@ Class Controller {
         $this->quit('ajax');
     }
 
+    //退出控制器，且不渲染视图
+    protected function quit($isAjax = false) {
+        global $pageStartTime;
+        //do something here before exit controller without render views
+
+        //非Ajax请求，且debug开启则输出程序执行耗时
+        if (!$isAjax && $pageStartTime && isset($this->config[DEBUG]) && $this->config[DEBUG]) {
+            $pageEndTime = microtime(true);
+            $pageTimeCost = $pageEndTime - $pageStartTime;
+            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+            $ips = explode('.', $serverIp);
+            echo "<!--{$pageTimeCost} {$ips[3]}  {$this->config[APPVERSION]}-->";
+        }
+        exit;
+    }
+
+    //设置布局、视图目录和视图
+    public function configView($viewName = 'index', $viewGroup = 'default', $layout = 'main', $theme = 'default') {
+        global $config;
+        $this->config[VIEWNAME] = $viewName;
+        $this->config[VIEWGROUP] = $viewGroup;
+        $this->config[LAYOUT] = $layout;
+        $this->config[THEME] = $config[THEME] = $theme;
+    }
+
     //初始化
     public function init() {
         //do something
+    }
+
+    //支持RESTful
+    protected function restfulInit() {
+        //自定义header信息传递请求方法
+        $requestMethod = Util::getRESTMethod();
+
+        //主键ID
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
+        //搜索关键词
+        $keyword = isset($_REQUEST['keyword']) ? $_REQUEST['keyword'] : '';
+
+        switch ($requestMethod) {
+            case 'GET':
+                if (isset($_REQUEST['keyword']) && method_exists($this, 'searchDataByKeyword')) {
+                    //搜索关键词
+                    return $this->searchDataByKeyword($keyword);
+                }else if (!empty($id) && method_exists($this, 'getDataById')) {
+                    //获取单个数据
+                    return $this->getDataById($id);
+                }else if (method_exists($this, 'getData')) {
+                    //批量获取数据
+                    return $this->getData();
+                }
+                break;
+            case 'POST':
+                if (method_exists($this, 'addData')) {
+                    //添加数据
+                    return $this->addData();
+                }
+                break;
+            case 'PUT':
+                if (method_exists($this, 'updateDataById')) {
+                    //修改数据
+                    return $this->updateDataById($id);
+                }
+                break;
+            case 'DELETE':
+                if (method_exists($this, 'deleteDataById')) {
+                    //删除数据
+                    return $this->deleteDataById($id);
+                }
+                break;
+            default:
+                break;            
+        }
+
+        return null;
     }
 
     //在render视图之前做一些事情
@@ -223,6 +271,10 @@ Class Controller {
     //控制器执行的最后一步，渲染视图
     public function render() {
         //do something here before render
+        if (method_exists($this, 'beforeRender')) {
+            //渲染视图之前执行一些动作
+            $this->beforeRender();
+        }
 
         Util::render(
                     $this->config[VIEWGROUP],
