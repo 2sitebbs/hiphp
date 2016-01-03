@@ -132,7 +132,7 @@ Class Controller {
         //$firstIp = $arrNums[0];
         //$serverKey = $firstIp % 2;
 
-        $serverKey = 1;
+        $serverKey = 0;
 
         $servers = array(
             array(
