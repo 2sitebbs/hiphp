@@ -102,6 +102,7 @@ class MongoDAOWrapper extends Base {
             }
         }
 
+        /*
         //翻页实现
         if ($start !== '' && !isset($condition['_id']['$lt']) && !isset($condition['_id']['$gt']) && !isset($condition['_id']['$lte'])) {
             //采用_id判断来代替skip
@@ -111,10 +112,17 @@ class MongoDAOWrapper extends Base {
                 $condition['_id']['$gte'] = intval($start);
             }
         }
+        */
+
 
         //查询数据
         $condition = Util::arraytonumber($condition);
         $rs = $c->find($condition, $fields);
+
+        //使用skip实现翻页
+        if ($start !== '') {
+            $rs->skip($start);
+        }
 
         //限制数量
         if (!empty($limit)) {
@@ -159,13 +167,13 @@ class MongoDAOWrapper extends Base {
         if (!isset($keyValues['_id'])) {    //设置自增id
             $keyValues['_id'] = $this->autoIncrementId("autoId_{$table}");
         }
-        $c = $this->connect($table);
         try {
+            $c = $this->connect($table);
             $keyValues = Util::arraytonumber($keyValues);
             $res = $c->insert($keyValues);
             $this->_ids["autoId_{$table}"] = $keyValues['_id'];
             return $res;
-        }catch(MongoCursorException $e) {
+        }catch(Exception $e) {
             return false;
         }
     }
@@ -176,36 +184,49 @@ class MongoDAOWrapper extends Base {
     }
 
     function update($table, $keyValues = array(), $condition = array(), $limit = 0) {
-        $c = $this->connect($table);
         try {
+            $c = $this->connect($table);
             $keyValues = Util::arraytonumber($keyValues);
             $condition = Util::arraytonumber($condition);
             return $c->update($condition, array('$set' => $keyValues), array('multiple' => true));
-        }catch(MongoCursorException $e) {
+        }catch(Exception $e) {
             return false;
         }   
     }
 
     function del($table, $condition = '', $limit = 0) {
-        $c = $this->connect($table);
         try {
+            $c = $this->connect($table);
             $condition = Util::arraytonumber($condition);
             return $c->remove($condition);
-        }catch(MongoCursorException $e) {
+        }catch(Exception $e) {
             return false;
         }
     }
 
     function count($table, $condition = '') {
-        $c = $this->connect($table);
-        $condition = Util::arraytonumber($condition);
-        return $c->count($condition);
+        try {
+            $c = $this->connect($table);
+            $condition = Util::arraytonumber($condition);
+            return $c->count($condition);
+        }catch(Exception $e) {
+            return -1;
+        }
     }
 
     function truncate($table) {
+        try {
+            $c = $this->connect($table);
+            return $c->remove();
+        }catch(Exception $e) {
+            return false;
+        }
+    }
+
+    function drop($table) {
         $c = $this->connect($table);
         try {
-            return $c->remove();
+            return $c->drop();
         }catch(MongoCursorException $e) {
             return false;
         }
@@ -216,13 +237,17 @@ class MongoDAOWrapper extends Base {
     }
 
     function autoIncrementId($table = 'autoIncrementIds') {
-        $c = $this->connect($table);
-        $result = $c->findAndModify(
-            array('_id' => 'autoIds'),
-            array('$inc' => array('val' => 1)),
-            null,
-            array('new' => true, 'upsert' => true)
-        );
+        try {
+            $c = $this->connect($table);
+            $result = $c->findAndModify(
+                array('_id' => 'autoIds'),
+                array('$inc' => array('val' => 1)),
+                null,
+                array('new' => true, 'upsert' => true)
+            );
+        }catch(Exception $e) {
+            return false;
+        }
 
         if (isset($result['val'])) {
             return $result['val'];
@@ -249,5 +274,29 @@ class MongoDAOWrapper extends Base {
 
         return $rows;
     }
+
+
+    //求和
+    function sum($table, $groupField, $sumField, $match = array()) {
+        try {
+            $c = $this->connect($table);
+            $op = array(
+                array(
+                    '$match' => $match
+                ),
+                array(
+                    '$group' => array(
+                        '_id' => array('uid' => "\${$groupField}"),
+                        'total' => array('$sum' => "\${$sumField}")
+                    )
+                )
+            );
+            $rs = $c->aggregate($op);
+            return $rs;
+        }catch(Exception $e) {
+            return false;
+        }
+    }
+
 
 }

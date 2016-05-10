@@ -98,10 +98,15 @@ class RedisCache {
 		return $this->redis->sMembers($key);
     }
 
-	//随机取指定个数集合成员
+    //随机取指定个数集合成员，兼容低版本redis扩展
     public function sRandMember($key, $num = 10) {
-		$key = $this->keyPre . $key;
-		return $this->redis->sRandMember($key, $num);
+        $key = $this->keyPre . $key;
+        $res = $this->redis->sRandMember($key, $num);
+        if (!$res) {
+            $mem = $this->redis->sRandMember($key);
+            $res = $mem ? array($mem) : array();
+        }
+        return $res;
     }
     
     public function sRemove($key, $member) {
@@ -230,6 +235,11 @@ class RedisCache {
     public function lRange($key, $start, $end) {
         $key = $this->keyPre . $key;
         return $this->redis->lRange($key, $start, $end);
+    }
+
+    public function incr($key){
+        $key = $this->keyPre . $key;
+        return $this->redis->incr($key);
     }
     /**
 	 * }}}

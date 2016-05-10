@@ -59,6 +59,9 @@ class MongoDAOReadApis extends MongoDAOImplement {
             //逻辑操作符
             'and' => '$and',
             'or' => '$or',
+
+            //增加in查询
+            'in' => '$in',
         );
 
         return isset($ops[$op]) ? $ops[$op] : '';
@@ -138,22 +141,21 @@ class MongoDAOReadApis extends MongoDAOImplement {
             $order = isset($args[1]) ? $args[1] : '';   //第二个参数为order by
             $limit = isset($args[2]) ? $args[2] : 0;   //第三个参数为limit
 
+            //默认只指定一个字段进行查询
             $out = $this->parseOperator($id);
-            //$condition = strtolower($field) . " {$out['op']} '{$out['value']}'";
             if (!empty($out['op'])) {
                 $condition[strtolower($field)][$out['op']] = $out['value'];
             }else {     //等于查询
                 $condition[strtolower($field)] = $out['value'];
             }
 
-            //and, or support
+            //and, or support，如果指定了两个字段
             $regf = '/^(\w+)(And|Or)(\w+)$/U';
             preg_match($regf, $field, $matchf);
             if (!empty($matchf)) {
                 list(, $field1, $op, $field2) = $matchf;
 
                 $out = $this->parseOperator($id);
-                //$condition = strtolower($field1) . " {$out['op']} '{$out['value']}'";
                 $condition = array();       //清空条件
                 if (!empty($out['op'])) {
                     $condition[$field1][$out['op']] = $out['value'];
@@ -163,7 +165,6 @@ class MongoDAOReadApis extends MongoDAOImplement {
 
                 if (isset($args[1])) {
                     $out = $this->parseOperator($args[1]);
-                    //$condition .= " {$op} " . strtolower($field2) . " {$out['op']} '{$out['value']}'";
                     if (!empty($out['op'])) {
                         $condition[$field2][$out['op']] = $out['value'];
                     }else {     //等于查询
@@ -174,7 +175,6 @@ class MongoDAOReadApis extends MongoDAOImplement {
                     $limit = isset($args[3]) ? $args[3] : 0;   //第四个参数为limit
                 }else {       //如果没传第二个参数，则认为两个字段都使用同一个值
                     $out = $this->parseOperator($args[0]);
-                    //$condition .= " {$op} " . strtolower($field2) . " {$out['op']} '{$out['value']}'";
                     if (!empty($out['op'])) {
                         $condition[$field2][$out['op']] = $out['value'];
                     }else {     //等于查询
@@ -191,24 +191,62 @@ class MongoDAOReadApis extends MongoDAOImplement {
                     $this->getMongodbOperator(strtolower($op)) => $newCondition,
                 );
             }
-        }else {     //如果不指定查询字段
+        }else {     //如果不指定查询字段，第一个参数传所有条件的数组
             /**如果第一个参数传参为数组，则认为是添加查询条件
              * 格式如：array('field1' => 'value1', 'field2' => '> value2', 'field3' => '< value3', 'field3' => '!= value3')
+             * 增加同一字段多条件支持，格式如：array('field1' => '>= 1', 'field2' => array('>= 1', '<= 20'))
+             * 增加同一字段多条件支持，格式如：array('field1' => '>= 1', 'field2' => array('>=' => 1, '<=' => 20))
+             * 增加in, all查询支持，格式如：array('field1' => '>= 1', 'field2' => array('in' => array(1, 2)))
+             * 增加or支持，格式如：array('field1' => '>= 1', 'field2' => array('or' => array(1,2)))
+             * 增加or支持，格式如：array('field1' => '>= 1', 'or' => array('field1' => 1, 'field2' => 2))
              */
             if (isset($args[0]) && is_array($args[0])) {
                 foreach ($args[0] as $field => $val) {
-                    $out = $this->parseOperator($val);
-                    //$condition .= !empty($condition) ? " and {$field} {$out['op']} '{$out['value']}'" : "{$field} {$out['op']} '{$out['value']}'";
-                    if (!empty($out['op'])) {
-                        $condition[$field][$out['op']] = $out['value'];
-                    }else {     //等于查询
-                        $condition[$field] = $out['value'];
+                    //增加多字段or查询支持
+                    if ($field == 'or') {
+                        $condition['$or'] = array();
+                        foreach ($val as $fd => $item) {
+                            $condition['$or'][] = array($fd => $item);
+                        }
+                    }else if(is_array($val)){     //如果字段的查询条件为数组
+                        //增加in和all查询支持 @2016-04-26
+                        foreach ($val as $key => $value) {
+                            $op = $this->getMongodbOperator($key);  //优先解析以key传参操作符的方式
+                            if ($op) {
+                                if ($op != '$or') {
+                                    $condition[$field][$op] = $value;
+                                    continue;
+                                }else {
+                                    //增加or查询支持
+                                    $condition[$op] = array();
+                                    foreach ($value as $item) {
+                                        $condition[$op][] = array($field => $item);
+                                    }
+                                    continue;
+                                }
+                            }
+
+                            //再尝试以表达式方式解析
+                            $out = $this->parseOperator($value);
+                            if (!empty($out['op'])) {
+                                $condition[$field][$out['op']] = $out['value'];
+                            }else {     //等于查询
+                                $condition[$field] = $out['value'];
+                            }
+                        }
+                    }else{      //如果字段查询条件非数组
+                        $out = $this->parseOperator($val);
+                        if (!empty($out['op'])) {
+                            $condition[$field][$out['op']] = $out['value'];
+                        }else {     //等于查询
+                            $condition[$field] = $out['value'];
+                        }
                     }
                 }
 
                 $order = isset($args[1]) ? $args[1] : '';   //第二个参数为order by
                 $limit = isset($args[2]) ? $args[2] : 0;   //第三个参数为limit
-            }else {
+            }else { //如果第一个参数不是条件数组，则认为是orderby排序参数
                 $order = isset($args[0]) ? $args[0] : '';   //第一个参数为order by
                 $limit = isset($args[1]) ? $args[1] : 0;   //第二个参数为limit
             }

@@ -6,12 +6,12 @@
  * 需要依赖AppReadApis类和MongoAppReadApis类
 */
 class CacheRead {
-    protected static $impl;
+    protected static $impl;     //缓存实例
     protected $cache;
     protected $cacheTime = 1800;
 
     //AppReadApis实例
-    protected static $appReadApi;
+    protected $appReadApi;   //数据库读取对象实例
 
     /**
     * 动态函数调用
@@ -23,10 +23,10 @@ class CacheRead {
 
         //如果没有缓存key或缓存时间为0，则不从缓存取数据
         if (empty($key) || $this->cacheTime == 0) {
-            if (!method_exists(self::$appReadApi, $method)) {
-                return self::$appReadApi->__call($method, $arguments);
+            if (!method_exists($this->appReadApi, $method)) {
+                return $this->appReadApi->__call($method, $arguments);
             }else {
-                return call_user_func_array(array(self::$appReadApi, $method), $arguments);
+                return call_user_func_array(array($this->appReadApi, $method), $arguments);
             }
         }
 
@@ -36,24 +36,30 @@ class CacheRead {
         }
 
         //调用AppReadApis类中取数据的方法
-        if (!method_exists(self::$appReadApi, $method)) {
-            $arr = self::$appReadApi->__call($method, $arguments);
+        if (!method_exists($this->appReadApi, $method)) {
+            $arr = $this->appReadApi->__call($method, $arguments);
         }else {
-            $arr = call_user_func_array(array(self::$appReadApi, $method), $arguments);
+            $arr = call_user_func_array(array($this->appReadApi, $method), $arguments);
         }
         $this->cache->set($key, $arr, $this->cacheTime);
         return $arr;
     }
     /*}}}*/
 
+    //设置数据库读取对象
+    public function setAppReadApi($appReadApi) {
+        $this->appReadApi = $appReadApi;
+    }
+
     //implement the abstract function
     /*{{{*/
     public static function getImplement($driver, $tablepre, $appCacheClass = null, $appDaoClass = 'AppReadApis') {
         $cacheClass = $appCacheClass ? $appCacheClass : __CLASS__;
-        $key = "{$cacheClass}_{$appDaoClass}";
+        $key = md5("{$tablepre}_{$cacheClass}_{$appDaoClass}" . serialize($driver));
         if (!isset(self::$impl[$key]) || empty(self::$impl[$key])) {
             self::$impl[$key] = new $cacheClass($driver, $tablepre);
-            self::$appReadApi = call_user_func_array(array($appDaoClass, 'getImplement'), array($driver, $tablepre));
+            $appReadApi = call_user_func_array(array($appDaoClass, 'getImplement'), array($driver, $tablepre));
+            self::$impl[$key]->setAppReadApi($appReadApi);
         }
         return self::$impl[$key];
     }
@@ -77,6 +83,10 @@ class CacheRead {
 
     /**
      * 获得缓存key
+     * ---------------
+     * 针对同一个表的读数据缓存key保存在缓存以表名为key之一的集合里
+     * 如果是memcache缓存，则直接存数组
+     * 如果是redis缓存，则存集合
      **/
     protected function getCacheKey($method, $arguments) {
         $out = $this->parseMethod($method);
@@ -91,7 +101,7 @@ class CacheRead {
             case 'add':
             case 'update':
             case 'delete':
-                //返回空的key
+                //返回缓存数据的key
                 $callCacheKey = '';
 
                 break;
@@ -105,17 +115,17 @@ class CacheRead {
 
     //重写getTablePre方法
     public function getTablePre() {
-        return self::$appReadApi->getTablePre();
+        return $this->appReadApi->getTablePre();
     }
 
     //重写表明前缀和数据库切换方法
     public function setTablePre($tablepre) {
-        return self::$appReadApi->setTablePre($tablepre);
+        return $this->appReadApi->setTablePre($tablepre);
     }
 
     //重写表明前缀和数据库切换方法
     public function setDatabase($dbname) {
-        return self::$appReadApi->setDatabase($tablepre);
+        return $this->appReadApi->setDatabase($tablepre);
     }
 
     public function setCacheTime($cacheTime = 1800) {
@@ -126,17 +136,47 @@ class CacheRead {
         return $this->cacheTime;
     }
 
-    public function setCacheHandler($memcache, $cacheTime = 1800) {
+    public function setCacheHandler($memcache, $cacheTime = 0) {
         $this->cacheTime = $cacheTime;
         $this->cache = $memcache;
     }
 
+    public function exists($key) {
+        return $this->cache->exists($key);
+    }
+    
     public function set($key, $val, $cacheTime = 1800) {
         return $this->cache->set($key, $val, $cacheTime);
     }
 
     public function get($key) {
         return $this->cache->get($key);
+    }
+
+    public function del($key) {
+        if ($this->cache->type() == 'redis') {
+            return $this->cache->del($key);
+        }
+
+        return false;
+    }
+
+    //缓存自增处理，支持memcached和redis，只支持数值类型
+    //如果是memcache的话，默认缓存半个小时
+    public function incr($key) {
+        if ($this->cache->type() == 'redis') {
+            return $this->cache->incr($key);
+        }else {
+            $num = $this->cache->get($key);
+            if ($num) {
+                $num ++;
+            }else {
+                $num = 1;
+            }
+
+            $this->cache->set($key, $num);
+            return $num;
+        }
     }
 
 }

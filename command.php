@@ -16,10 +16,12 @@
  * THEMECONTEXT ==> 皮肤上下文路径
  * THEMEDIR ==> 皮肤前端展示路径
  */
-
 if (count($argv) <= 1) {
     die("Usage: php command.php controller action [appMain] [version] [parameters] [controllergroup]\n");
 }
+
+$pageStartTime = microtime(true);   //执行计时
+require_once dirname(__FILE__) . '/core/inc/constant.php';
 
 if (!defined('APPVERSION')) {define('APPVERSION', 'global_app_version');}
 if (!defined('APPCONTROLLER')) {define('APPCONTROLLER', 'global_app_controller');}
@@ -51,7 +53,15 @@ foreach ($arrTmp as $item) {
         $_GET[$arr[0]] = $arr[1];
     }
 }
+
+//环境变量设置
 $_SERVER['HTTP_X_REAL_IP'] = '127.0.0.1';
+$_SERVER['HTTP_HOST'] = isset($_GET['host']) ? $_GET['host'] : '127.0.0.1';
+$_SERVER['REQUEST_URI'] = "/{$_config[APPCONTROLLER]}_{$_config[APPACTION]}.html";
+
+
+//是否固定版本号
+$fixedVersion = isset($_GET['fixedv']) ? (int)$_GET['fixedv'] : 0;
 
 //全局变量设置
 $currentDir = dirname(__FILE__);
@@ -60,19 +70,33 @@ $_config[THEMECONTEXT] = "{$currentDir}/{$_config[APPVERSION]}";
 $_config[THEMEDIR] = "{$_config[APPVERSION]}/{$_config[APPMAIN]}";
 
 
+//尝试加载控制器
+$controllerFile = "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controller/{$_config[APPCONTROLLERGROUP]}{$_config[APPCONTROLLER]}.php";
+if (!file_exists($controllerFile)) {
+    $errorMsg = <<<eof
+    Controller {$_config[APPCONTROLLER]}.php not exists.
+
+eof;
+    echo $errorMsg;
+    exit;
+}
+
 //初始化
 $libPath = "{$currentDir}/core";          //设定HIPHP的路径，可将core保存到一个公用目录以便多个项目使用
 require_once "{$libPath}/inc/hiphp.php";     //引入HIPHP
 require_once "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/inc/init_app.php";		//包含app所需文件
 
 //尝试加载控制器中的动作
-$includeOk = @include_once "{$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controller/{$_config[APPCONTROLLERGROUP]}{$_config[APPCONTROLLER]}.php";
+$includeOk = include_once $controllerFile;
 if (!$includeOk) {
     $errorMsg = <<<eof
-    Controller {$_config[APPCONTEXT]}/{$_config[APPMAIN]}/controller/{$_config[APPCONTROLLER]}.php not exists.\n
+    Controller {$_config[APPCONTROLLER]}.php not exists.\n
 eof;
     die($errorMsg);
 }
+
+//合并配置
+$config = isset($_config) ? array_merge($_config, $config) : $config;
 
 //call action
 $controllerName = ucfirst(strtolower($_config[APPCONTROLLER])) . "Controller";

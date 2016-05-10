@@ -34,6 +34,11 @@ class MMCached {
         return $this->mem->addServer($host, $port);
     }
 
+    //判断一个key是否存在
+    public function exists($key, $expire = 10) {
+        return !$this->mem->add($this->keyPre . $key, 1, $expire);
+    }
+    
     public function get($key) {
         return $this->mem->get($this->keyPre . $key);
     }
@@ -43,6 +48,10 @@ class MMCached {
      */
     public function set($key, $val, $expire=600) {
         return $this->mem->set($this->keyPre . $key, $val, $expire);
+    }
+    
+    public function del($key) {
+        return $this->mem->delete($this->keyPre . $key);
     }
 
     //support auth

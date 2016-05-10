@@ -24,8 +24,17 @@ class MMCache {
         return $this->cacheType;
     }
 
+    //判断一个key是否存在
+    public function exists($key, $expire = 10) {
+        return !$this->mem->add($this->keyPre . $key, 1, false, $expire);
+    }
+    
     public function get($key) {
         return $this->mem->get($this->keyPre . $key);
+    }
+    
+    public function del($key) {
+        return $this->mem->delete($this->keyPre . $key);
     }
 
     /**

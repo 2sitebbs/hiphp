@@ -64,10 +64,10 @@ class DAOReadApis extends DAOImplement {
         $out = array();
         if (count($match) == 3 && !empty($match[1]) && in_array($match[1], $opArr)) {   //有操作符
             $out['op'] = $match[1];
-            $out['value'] = $match[2] == '""' || $match[2] == "''" ? '' : $match[2];
+            $out['value'] = $match[2] == '""' || $match[2] == "''" ? '' : htmlspecialchars($match[2], ENT_QUOTES);
         }else {
             $out['op'] = '=';
-            $out['value'] = $value;
+            $out['value'] = htmlspecialchars($value, ENT_QUOTES);
         }
 
         return $out;

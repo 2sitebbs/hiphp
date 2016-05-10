@@ -13,7 +13,6 @@ abstract class DAOImplement {
     protected function __construct($driver, $tablepre) {
         //always get a new wrapper
         $this->wrapper = DAOWrapper::getWrapper($driver, true);
-        $this->wrapper->query('set names utf8');
         $this->tablepre = $tablepre;
     }
 
@@ -31,6 +30,10 @@ abstract class DAOImplement {
 
     public function setDatabase($dbname) {
         return $this->wrapper->select_db($dbname);
+    }
+    
+    public function close() {
+        return $this->wrapper->close();
     }
 
     /* abstract functions */

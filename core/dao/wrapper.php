@@ -13,7 +13,7 @@ class DAOWrapper extends Base {
     private function __construct($driver) {
         $this->driver = $driver;
         $this->link = $this->connect($driver);
-        if (!$this->link) {
+        if (!$this->link || !mysqli_set_charset($this->link, "utf8")) {
             $this->echoError("DB connection error: " . mysqli_connect_error());
         }
     }
@@ -59,13 +59,26 @@ class DAOWrapper extends Base {
         return $this->getArray($rs);
     }
 
+    //转义之前判断下是否有需要转义的字符
+    private function htmlspecialchars($str) {
+        $trytodecode = htmlspecialchars_decode($str, ENT_QUOTES);
+
+        //如果没有被转义，则将其转义
+        if ($trytodecode == $str) {
+            return htmlspecialchars($str, ENT_QUOTES);
+        }
+
+        //如果已经转义，则不再转义
+        return $str;
+    }
+    
     //注意，如果是联合索引请不要使用第三个参数，mysql只会更新符合条件的第一条数据，而不是所有行
     function insert($table, $keyValues = array(), $duplicateUpdates = array()) {
         $fields = '';
         $values = '';
         foreach ($keyValues as $key => $val) {
             $fields .= "{$key},";
-            $values .= "'{$val}',";
+            $values .= "'" . $this->htmlspecialchars($val, ENT_QUOTES) . "',";
         }
         $fields = preg_replace('/,$/', '', $fields);
         $values = preg_replace('/,$/', '', $values);
@@ -97,7 +110,7 @@ class DAOWrapper extends Base {
     function update($table, $keyValues = array(), $condition = '', $limit = 0) {
         $sql = "update $table set ";
         foreach ((array)$keyValues as $key => $value) {
-            $sql .= "$key='{$value}',";
+            $sql .= "$key='" . $this->htmlspecialchars($value, ENT_QUOTES) . "',";
         }
         $sql = preg_replace('/,$/', '', $sql);
         $sql .= (!empty($condition) ? " where $condition" : "") . ($limit > 0 ? " limit $limit" : "");

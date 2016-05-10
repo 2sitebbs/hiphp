@@ -166,7 +166,9 @@ Class Util{
                 continue;
             }
 
-            $arr[$key] = htmlspecialchars($val, ENT_QUOTES);
+            //转义之前先判断下是否有转义
+            $tmp = htmlspecialchars_decode($val, ENT_QUOTES);
+            $arr[$key] = $tmp == $val ? htmlspecialchars($val, ENT_QUOTES) : $val;
         }
     }
 

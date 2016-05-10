@@ -14,8 +14,22 @@ Class Controller {
     protected $dao_mongo_read;  //mongodb读数据对象
     protected $dao_mongo_write; //mongodb写数据对象
 
-    //初始化DAO对象等全局变量
+    //构造函数
     public function __construct() {
+        global $pageData, $config;
+
+        //全局变量初始化
+        $this->pageData = $pageData;
+        $this->config = $config;
+
+        //如需数据库和缓存支持
+        if ($config[NEEDDB] || $config[NEEDMONGODB]) {
+            $this->_initDAO();
+        }
+    }
+
+    //初始化DAO对象等全局变量
+    protected function _initDAO() {
         global $pageData, $config;
 
         //初始化变量
@@ -50,8 +64,8 @@ Class Controller {
             $mmcachePassword = $myMemServer['password'];
         }
 
-        //用域名 + 网站id做前缀
-        $keyPre = $config[ROOTDOMAIN] . $config[SITEID];
+        //用域名做前缀
+        $keyPre = $config[ROOTDOMAIN];
 
         //mysql dao implement
         if ($config[NEEDDB]) {
@@ -61,7 +75,7 @@ Class Controller {
                 $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'AppCacheRead');
                 $dao_read->setCacheHandler($memcache);
             }else if ($config[NEEDMMCACHE]) {
-                $memcache = new MMCache($keyPre);
+                $memcache = new MMCache($keyPre, $mmcacheHost, $mmcachePort);
                 $dao_read = AppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'AppCacheRead');
                 $dao_read->setCacheHandler($memcache);
             }else if ($config[NEEDREDIS]) {
@@ -79,21 +93,21 @@ Class Controller {
         //mongodb实例化
         if ($config[NEEDMONGODB]) {
             if (!$config[NEEDMMCACHED] && !$config[NEEDMMCACHE] && !$config[NEEDREDIS]) {
-                $dao_mongo_read = MongoAppReadApis::getImplement($config[DBDRIVER_READ], $config[TABLEPRE]);
+                $dao_mongo_read = MongoAppReadApis::getImplement($config[MONGODBDRIVER_READ], $config[TABLEPRE]);
             }else if ($config[NEEDMMCACHED]) {
                 $memcache = new MMCached($keyPre, $mmcacheHost, $mmcachePort, $mmcacheUsername, $mmcachePassword);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[MONGODBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($memcache);
             }else if ($config[NEEDMMCACHE]) {
-                $memcache = new MMCache($keyPre);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
+                $memcache = new MMCache($keyPre, $mmcacheHost, $mmcachePort);
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[MONGODBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($memcache);
             }else if ($config[NEEDREDIS]) {
                 $rediscache = new RedisCache($keyPre, $redisHost, $redisPort, $redisPassword);
-                $dao_mongo_read = MongoAppCacheRead::getImplement($config[DBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
+                $dao_mongo_read = MongoAppCacheRead::getImplement($config[MONGODBDRIVER_READ], $config[TABLEPRE], 'MongoAppCacheRead', 'MongoAppReadApis');
                 $dao_mongo_read->setCacheHandler($rediscache);
             }
-            $dao_mongo_write = MongoAppWriteApis::getImplement($config[DBDRIVER_WRITE], $config[TABLEPRE]);
+            $dao_mongo_write = MongoAppWriteApis::getImplement($config[MONGODBDRIVER_WRITE], $config[TABLEPRE]);
         }
 
         $this->pageData = $pageData;
@@ -150,7 +164,7 @@ Class Controller {
     * 调用方法：$this->setViewVar($key, $val);
     * 调用方法：$this->setViewVar(array('a'=>'x'));
     */
-    protected function setViewVar($arr, $val = null) {
+    public function setViewVar($arr, $val = null) {
         global $pageData;
         Util::setViewVar($arr, $val);
         
@@ -159,7 +173,7 @@ Class Controller {
     }
 
     //获取视图变量
-    protected function getViewVars($key = '') {
+    public function getViewVars($key = '') {
         global $pageData;
         $this->pageData = $pageData;
         return empty($key) ? $this->pageData : @$this->pageData[$key];
@@ -186,7 +200,7 @@ Class Controller {
     }
 
     //退出控制器，且不渲染视图
-    protected function quit($isAjax = false) {
+    public function quit($isAjax = false) {
         global $pageStartTime;
         //do something here before exit controller without render views
 

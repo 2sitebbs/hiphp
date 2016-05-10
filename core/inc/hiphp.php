@@ -5,6 +5,7 @@ $_incPath = dirname(__FILE__);
 require_once "{$_incPath}/controller.php";
 require_once "{$_incPath}/constant.php";
 require_once "{$_incPath}/util.php";
+require_once "{$_incPath}/restapi.php";
 require_once "{$_incPath}/config.php";
 require_once "{$_incPath}/../dao/api_read.php";
 require_once "{$_incPath}/../dao/api_write.php";

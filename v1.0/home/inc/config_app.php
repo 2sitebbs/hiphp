@@ -45,6 +45,24 @@ $config_app = array(
         DBPORT => '3306',
     ),
 
+
+    //mongodb配置
+    MONGODBDRIVER_READ => array(    //mongodb数据帐号配置
+        DBHOST => 'localhost',
+        DBUSER => 'test',
+        DBPASSWORD => '123456',
+        DATABASE => 'test',
+        DBPORT => '27017',
+    ),
+    MONGODBDRIVER_WRITE => array(    //mongodb数据帐号配置
+        DBHOST => 'localhost',
+        DBUSER => 'test',
+        DBPASSWORD => '123456',
+        DATABASE => 'test',
+        DBPORT => '27017',
+    ),
+
+
     DEBUG => true,       //开启debug模式
     /*}}}*/
 

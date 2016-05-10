@@ -32,6 +32,9 @@ if (!defined('TABLEPRE')) {define('TABLEPRE', 'db_tablepre');}
 if (!defined('DBLINK')) {define('DBLINK', 'db_link');}
 if (!defined('DAOIMPL')) {define('DAOIMPL', 'db_daoimpl');}
 
+if (!defined('MONGODBDRIVER_READ')) {define('MONGODBDRIVER_READ', 'mongodb_driver_read');}
+if (!defined('MONGODBDRIVER_WRITE')) {define('MONGODBDRIVER_WRITE', 'mongodb_driver_write');}
+
 if (!defined('NEEDDB')) {define('NEEDDB', 'db_needed');}
 if (!defined('NEEDMMCACHE')) {define('NEEDMMCACHE', 'mmcache_needed');}
 if (!defined('NEEDMMCACHED')) {define('NEEDMMCACHED', 'mmcached_needed');}
@@ -62,7 +65,7 @@ if (!defined('URLREWRITE')) {define('URLREWRITE', 'urlrewrite');}
 if (!defined('COOKIEPRE')) {define('COOKIEPRE', 'cookiepre');}
 
 if (!defined('COOKIEUID')) {define('COOKIEUID', 'cookieuid');}
-if (!defined('YUNAPPSECRET')) {define('YUNAPPSECRET', 'xinyuemin.com_20141004');}
+if (!defined('YUNAPPSECRET')) {define('YUNAPPSECRET', 'hiphp.org');}
 
 
 
