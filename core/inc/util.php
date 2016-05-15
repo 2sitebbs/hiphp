@@ -582,21 +582,19 @@ Class Util{
     
     //UUID固定格式
 	public static function generateUUID() {
-		$orStr = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx';
-		$uuid = preg_replace_callback(
-			'/[xy]/',
-			'Util::dealRandom',
-			$orStr
-		);
-
-		return strtoupper($uuid);
-	}
-
-	//生成随机字符
-	public static function dealRandom($matches) {
-		$r = random() * 16 | 0;
-		$v = $matches[0] == 'x' ? $r : ($r&0x3|0x8);
-		return dechex($v);
+        if (function_exists('com_create_guid')){
+            return com_create_guid();
+        }else{
+            mt_srand((double)microtime()*10000);    //optional for php 4.2.0 and up.
+            $charid = strtoupper(md5(uniqid(rand(), true)));
+            $hyphen = chr(45);  // "-"
+            $uuid = substr($charid, 0, 8).$hyphen
+                    .substr($charid, 8, 4).$hyphen
+                    .substr($charid,12, 4).$hyphen
+                    .substr($charid,16, 4).$hyphen
+                    .substr($charid,20,12);
+            return $uuid;
+        }
 	}
 
     //获取用户的真实ip
