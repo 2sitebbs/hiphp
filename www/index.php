@@ -98,5 +98,6 @@ $controllerName = ucfirst(strtolower($_config[APPCONTROLLER])) . "Controller";
 $appController = new $controllerName();             //实例化控制器 
 $appController->configView($_config[APPACTION], $_config[APPCONTROLLER], 'main', $config[THEME]);  //设置默认视图目录和默认视图
 $appController->init();                                                 //初始化控制器
-$appController->$_config[APPACTION]();  	          //执行控制器
+$action = $_config[APPACTION];  	          //执行控制器
+$appController->$action();  	          //执行控制器
 $appController->render();             		          //渲染视图
