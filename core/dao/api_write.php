@@ -61,7 +61,8 @@ class DAOWriteApis extends DAOImplement {
             case 'add':
                 $arrKeyValues = $args[0];   //所有插入数据的动作最多接收两个参数
                 $arrDuplicateUpdateFields = isset($args[1]) ? $args[1] : array();   //第二个参数为设置是否忽略索引冲突的数据
-                $result = $this->wrapper->insert($table, $arrKeyValues, $arrDuplicateUpdateFields);
+                $arrDuplicateOps = isset($args[2]) ? $args[2] : array();            //第三个参数为设置主键冲突时更新操作服
+                $result = $this->wrapper->insert($table, $arrKeyValues, $arrDuplicateUpdateFields, $arrDuplicateOps);
                 break;
             case 'update':
                 if (count($args) < 2) {
