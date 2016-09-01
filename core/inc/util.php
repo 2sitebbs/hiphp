@@ -698,6 +698,18 @@ Class Util{
         }
     }
 
+    //获取数组参数的特征码
+    public static function getNonce($arrParas = array()) {
+        sort($arrParas, SORT_STRING);
+        $str = "";
+
+        for ($arrParas as $key => $value) {
+            $str .= "{$key}={$value}&";
+        }
+
+        return md5($str);
+    }
+
     //生成签名
     public static function generateSignature($timestamp, $nonce, $privateKey = '') {
         $token = empty($privateKey) ? YUNAPPSECRET : $privateKey;
