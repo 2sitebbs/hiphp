@@ -180,7 +180,12 @@ Class Controller {
     }
 
     //输出json格式数据，并退出程序
-    protected function json($data) {
+    protected function json($code, $msg, $data = array()) {
+        $out = array(
+            'code' => $code,
+            'msg' => $msg,
+            'ext' => $data,
+        );
         $jsonpCallback = isset($_GET['callback']) && !empty($_GET['callback']) ? htmlspecialchars($_GET['callback']) : false;
 
         //输出json格式数据
@@ -189,10 +194,10 @@ Class Controller {
             $jsonpCallback = preg_replace('/\W/', '', $jsonpCallback);      //删除除下划线、英文字母和数字之外的字符
 
             header('Content-type: text/javascript');
-            echo "$jsonpCallback(" . json_encode($data) . ")";
+            echo "$jsonpCallback(" . json_encode($out) . ")";
         }else {
             header('Content-type: application/json');
-            echo json_encode($data);
+            echo json_encode($out);
         }
 
         //退出程序
