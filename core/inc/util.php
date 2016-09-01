@@ -703,7 +703,7 @@ Class Util{
         sort($arrParas, SORT_STRING);
         $str = "";
 
-        for ($arrParas as $key => $value) {
+        foreach ($arrParas as $key => $value) {
             $str .= "{$key}={$value}&";
         }
 
