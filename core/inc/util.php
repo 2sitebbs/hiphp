@@ -721,4 +721,21 @@ Class Util{
         return $signature;
     }
 
+    //获取6位数的数字和大小写字母组成的随机字符串
+    public static function randCode($maxNum = 6) {
+        $letters = array(
+            0,1,2,3,4,5,6,7,8,9,
+            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        );
+    
+        $randStr = '';
+        for ($i=0;$i<$maxNum;$i++) {
+            $key = rand(0, 61);
+            $randStr .= $letters[$key];
+        }
+    
+        return $randStr;
+    }
+
 }
