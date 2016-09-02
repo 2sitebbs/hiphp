@@ -98,7 +98,6 @@ class DAOWrapper extends Base {
         //反斜杠处理
         $sql = str_replace('\\', '\\\\', $sql);
 
-        //error_log("Insert SQL: {$sql}\n", 3, '/var/log/debug.log');
         return mysqli_query($this->link, $sql);
     }
 
@@ -107,10 +106,17 @@ class DAOWrapper extends Base {
         return mysqli_insert_id($this->link);
     }
 
+    //增加指定操作符进行更新
+    //keyValues传值格式：array('field' => array('+' => 10))
     function update($table, $keyValues = array(), $condition = '', $limit = 0) {
         $sql = "update $table set ";
         foreach ((array)$keyValues as $key => $value) {
-            $sql .= "$key='" . $this->htmlspecialchars($value, ENT_QUOTES) . "',";
+            if (!is_array($value)) {
+                $sql .= "{$key}='" . $this->htmlspecialchars($value, ENT_QUOTES) . "',";
+            }else {
+                $ops = array_keys($value);
+                $sql .= "{$key}={$key}{$ops[0]}'" . $this->htmlspecialchars($value[$ops[0]], ENT_QUOTES) . "',";
+            }
         }
         $sql = preg_replace('/,$/', '', $sql);
         $sql .= (!empty($condition) ? " where $condition" : "") . ($limit > 0 ? " limit $limit" : "");
