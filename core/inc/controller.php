@@ -194,10 +194,10 @@ Class Controller {
             $jsonpCallback = preg_replace('/\W/', '', $jsonpCallback);      //删除除下划线、英文字母和数字之外的字符
 
             header('Content-type: text/javascript');
-            echo "$jsonpCallback(" . json_encode($out) . ")";
+            echo "$jsonpCallback(" . json_encode($out, JSON_NUMERIC_CHECK) . ")";
         }else {
             header('Content-type: application/json');
-            echo json_encode($out);
+            echo json_encode($out, JSON_NUMERIC_CHECK);
         }
 
         //退出程序
