@@ -73,7 +73,8 @@ class DAOWrapper extends Base {
     }
     
     //注意，如果是联合索引请不要使用第三个参数，mysql只会更新符合条件的第一条数据，而不是所有行
-    function insert($table, $keyValues = array(), $duplicateUpdates = array()) {
+    //增加主键冲突时更新操作可指定操作符，参数格式：array('field1' => '+')
+    function insert($table, $keyValues = array(), $duplicateUpdates = array(), $duplicateOption = array()) {
         $fields = '';
         $values = '';
         foreach ($keyValues as $key => $val) {
@@ -89,7 +90,7 @@ class DAOWrapper extends Base {
             $sql .= ' ON DUPLICATE KEY UPDATE ';
             foreach ($duplicateUpdates as $k) {
                 if (isset($keyValues[$k])) {
-                    $sql .= "{$k}='{$keyValues[$k]}',";
+                    $sql .= !$duplicateOption ? "{$k}='{$keyValues[$k]}'," : "{$k}={$k}{$duplicateOption[$k]}'{$keyValues[$k]}',";
                 }
             }
             $sql = preg_replace('/,$/', '', $sql);
