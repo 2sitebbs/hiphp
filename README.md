@@ -26,10 +26,10 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 │   │── admin
 │   │   │── bin
 │   │   │── controller
+│   │   │   └── test
 │   │   │── dao
 │   │   │── db
 │   │   │── inc
-│   │   │── test
 │   │   └── www
 │   │       │── plugins
 │   │       │── theme
@@ -44,10 +44,10 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 │   └── home
 │       │── bin
 │       │── controller
+│       │   └── test
 │       │── dao
 │       │── db
 │       │── inc
-│       │── test
 │       └── www
 │           │── plugins
 │           │── theme
