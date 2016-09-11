@@ -10,7 +10,7 @@ Class AppUtil extends Util{
     public static function userLoginCheck() {
     	global $config;
 
-        //登陆检查
+        //TODO: 登陆检查
         
     }
 
@@ -79,18 +79,50 @@ Class AppUtil extends Util{
 
         return $url;
     }
+    
+    //通用获取某个控制器的某个动作的网址Url
+    public static function getUrl($controller, $action = 'index', $arrParameters = array()) {
+        global $config;
+
+        $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . preg_replace('/\/[^\/]*$/', '', $_SERVER['REQUEST_URI']);
+
+        $url = "/?controller={$controller}&action={$action}&v={$config[APPVERSION]}";
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $url = "/{$controller}_{$action}.html?v={$config[APPVERSION]}";
+        }
+
+        foreach ($arrParameters as $key => $val) {
+            $url .= "&{$key}=" . urlencode($val);
+        }
+
+        //添加时间戳
+        $time = time();
+        $url .= "&t={$time}";
+
+        return $baseUrl . self::addLang($url);
+    }
 
     //获取分类页Url
     public static function getCateUrl($cate) {
+        global $config;
+        
         $controller = $cate['cate'] != 'info' ? 'cate' : 'detail';
         $cateUrl = "/?controller={$controller}&action={$cate['cate']}&nav={$cate['enname']}&gid={$cate['gid']}&cate=" . urlencode($cate['cnname']);
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $cateUrl = "/{$controller}_{$cate['cate']}_{$cate['gid']}_" . urlencode($cate['cnname']) . ".html?nav={$cate['enname']}";
+        }
         return self::addLang($cateUrl);
     }
 
     //获取详细页Url
     public static function getDetailUrl($article) {
+        global $config;
+
         $controller = 'detail';
         $articleUrl = "/?controller={$controller}&action={$article['groupcate']}&cid={$article['cid']}&title=" . urlencode($article['title']);
+        if ($config[URLREWRITE]) {  //如果url rewrite开启
+            $articleUrl = "/{$controller}_{$article['groupcate']}_{$article['cid']}_" . urlencode($article['title']) . ".html";
+        }
         return self::addLang($articleUrl);
     }
 
