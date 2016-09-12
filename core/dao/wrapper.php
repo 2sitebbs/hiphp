@@ -125,14 +125,14 @@ class DAOWrapper extends Base {
         //反斜杠处理
         $sql = str_replace('\\', '\\\\', $sql);
 
-        return mysqli_query($this->link, $sql);
+        return mysqli_query($this->link, $sql) && mysqli_affected_rows($this->link);
     }
 
     function del($table, $condition = '', $limit = 0) {
         $sql = "delete from $table" .
             (!empty($condition) ? " where $condition" : "") .
             ($limit > 0 ? " limit $limit" : "");
-        return mysqli_query($this->link, $sql);
+        return mysqli_query($this->link, $sql) && mysqli_affected_rows($this->link);
     }
 
     function truncate($table) {
