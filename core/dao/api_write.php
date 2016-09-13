@@ -49,6 +49,7 @@ class DAOWriteApis extends DAOImplement {
     }
 
     //默认的数据插入函数，如需特殊处理另行定义
+    //为update和delete增加数组条件支持 @2016-09-13
     protected function todo($action, $tableName, $field = '', $args) {
         if (empty($args)) {
             return null;
@@ -71,38 +72,74 @@ class DAOWriteApis extends DAOImplement {
 
                 $id = $args[0];
                 $arrKeyValues = $args[1];   //第二个参数为数据数组
-                $idName = !empty($field) ? strtolower($field) : 'id';   //默认使用id主键
-                $condition = "{$idName}='{$id}'";
 
-                //and support
-                $regf = '/^(\w+)(And|Or)(\w+)$/U';
-                preg_match($regf, $field, $matchf);
-                if (!empty($matchf)) {
-                    list(, $field1, $op, $field2) = $matchf;
-                    $condition = strtolower($field1) . "='{$id}'";
-                    if (isset($args[1])) {
-                        $condition .= " {$op} " . strtolower($field2) . "='{$args[1]}'";
-                        $arrKeyValues = $args[2];   //第三个参数为数据数组
+                if (!is_array($id)) {       //条件参数非数组
+                    $idName = !empty($field) ? strtolower($field) : 'id';   //默认使用id主键
+                    $condition = "{$idName}='{$id}'";
+
+                    //and support
+                    $regf = '/^(\w+)(And|Or)(\w+)$/U';
+                    preg_match($regf, $field, $matchf);
+                    if (!empty($matchf)) {
+                        list(, $field1, $op, $field2) = $matchf;
+                        $condition = strtolower($field1) . "='{$id}'";
+                        if (isset($args[1])) {
+                            $condition .= " {$op} " . strtolower($field2) . "='{$args[1]}'";
+                            $arrKeyValues = $args[2];   //第三个参数为数据数组
+                        }
                     }
+                }else {     //条件参数为数组，如：array('id' => 1, 'name' => '!= a')
+                    $conditions = array();
+                    foreach ($id as $key => $val) {
+                        if (!is_array($val)) {
+                            $tarr = $this->parseOperator($val);
+                            $conditions[] = strtolower($key) . " {$tarr['op']} '{$tarr['value']}'";
+                        }else {
+                            foreach($val as $k=>$v){
+                                $conditions[] = strtolower($key) . " {$k} '{$v}'";
+                            }
+                        }
+                    }
+
+                    $condition = implode(' and ', $conditions);
                 }
+
 
                 $result = $this->wrapper->update($table, $arrKeyValues, $condition);
                 break;
             case 'delete':
                 $id = $args[0];   //所有删除数据的动作默认只接收一个参数，且为id唯一编号
-                $idName = !empty($field) ? strtolower($field) : 'id';   //默认使用id主键
-                $condition = "{$idName}='{$id}'";
 
-                //and support
-                $regf = '/^(\w+)(And|Or)(\w+)$/U';
-                preg_match($regf, $field, $matchf);
-                if (!empty($matchf)) {
-                    list(, $field1, $op, $field2) = $matchf;
-                    $condition = strtolower($field1) . "='{$id}'";
-                    if (isset($args[1])) {
-                        $condition .= " {$op} " . strtolower($field2) . "='{$args[1]}'";
+                if (!is_array($id)) {
+                    $idName = !empty($field) ? strtolower($field) : 'id';   //默认使用id主键
+                    $condition = "{$idName}='{$id}'";
+
+                    //and support
+                    $regf = '/^(\w+)(And|Or)(\w+)$/U';
+                    preg_match($regf, $field, $matchf);
+                    if (!empty($matchf)) {
+                        list(, $field1, $op, $field2) = $matchf;
+                        $condition = strtolower($field1) . "='{$id}'";
+                        if (isset($args[1])) {
+                            $condition .= " {$op} " . strtolower($field2) . "='{$args[1]}'";
+                        }
                     }
+                }else {     //如果第一个参数为数组，指定多个参数支持，同一个字段支持多个条件
+                    $conditions = array();
+                    foreach ($id as $key => $val) {
+                        if (!is_array($val)) {
+                            $tarr = $this->parseOperator($val);
+                            $conditions[] = strtolower($key) . " {$tarr['op']} '{$tarr['value']}'";
+                        }else {
+                            foreach($val as $k=>$v){
+                                $conditions[] = strtolower($key) . " {$k} '{$v}'";
+                            }
+                        }
+                    }
+
+                    $condition = implode(' and ', $conditions);
                 }
+
 
                 $result = $this->wrapper->del($table, $condition);
                 break;

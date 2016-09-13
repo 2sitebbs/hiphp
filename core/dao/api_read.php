@@ -46,33 +46,6 @@ class DAOReadApis extends DAOImplement {
         return $match;
     }
 
-    //解析比较运算符，得到where条件中的操作符
-    protected function parseOperator($value) {
-        $opArr = array(
-            '=',
-            '>',
-            '<',
-            '<=',
-            '>=',
-            '!=',
-        );
-        $reg = '/^(?:(=|>|<|>=|<=|!=) )?(.+)$/i';
-
-        $value = htmlspecialchars_decode($value, ENT_QUOTES);
-        preg_match($reg, $value, $match);
-
-        $out = array();
-        if (count($match) == 3 && !empty($match[1]) && in_array($match[1], $opArr)) {   //有操作符
-            $out['op'] = $match[1];
-            $out['value'] = $match[2] == '""' || $match[2] == "''" ? '' : htmlspecialchars($match[2], ENT_QUOTES);
-        }else {
-            $out['op'] = '=';
-            $out['value'] = htmlspecialchars($value, ENT_QUOTES);
-        }
-
-        return $out;
-    }
-
     //默认的数据读取函数，如需特殊处理另行定义
     protected function todo($tableName, $field = '', $args = array()) {
         $pre = $this->tablepre;
@@ -127,11 +100,18 @@ class DAOReadApis extends DAOImplement {
         }else {     //如果不指定查询字段
             /**如果第一个参数传参为数组，则认为是添加查询条件
              * 格式如：array('field1' => 'value1', 'field2' => '> value2', 'field3' => '< value3', 'field3' => '!= value3')
+             * 增加同一个字段多个条件支持：array('field1' => array('>' => 1, '<=' 100)) @2016-09-13
              */
             if (isset($args[0]) && is_array($args[0])) {
                 foreach ($args[0] as $field => $val) {
-                    $out = $this->parseOperator($val);
-                    $condition .= !empty($condition) ? " and {$field} {$out['op']} '{$out['value']}'" : "{$field} {$out['op']} '{$out['value']}'";
+                    if(!is_array($val)){
+                        $out = $this->parseOperator($val);
+                        $condition .= !empty($condition) ? " and {$field} {$out['op']} '{$out['value']}'" : "{$field} {$out['op']} '{$out['value']}'";
+                    }else{  //如果同一个字段设置多个条件
+                        foreach($val as $k=>$v){
+                            $condition .= !empty($condition) ? " and {$field} {$k} '{$v}'" : "{$field} {$k} '{$v}'";
+                        }
+                    }
                 }
                 $order = isset($args[1]) ? $args[1] : '';   //第二个参数为order by
                 $limit = isset($args[2]) ? $args[2] : '';   //第三个参数为limit
