@@ -38,7 +38,7 @@ $_config = array(
     APPCONTROLLERGROUP => (isset($_GET['controllergroup']) && !empty($_GET['controllergroup']) ? htmlspecialchars(trim(str_replace('/', '', $_GET['controllergroup']))) . '/' : ''),
     APPACTION => (isset($_GET['action']) ? htmlspecialchars(trim($_GET['action'])) : 'index'),
 
-    APPMAIN => (isset($appMain) && !empty($appMain) ? $appMain : 'home'),
+    APPMAIN => ( isset($appMain) && !empty($appMain) ? $appMain : (isset($_GET['appmain']) ? htmlspecialchars(trim($_GET['appmain'])) : 'home') ),
 );
 
 $_config[APPVERSION] = isset($_GET['v']) ? htmlspecialchars(trim($_GET['v'])) : $_config[APPVERSION];
