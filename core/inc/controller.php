@@ -229,6 +229,19 @@ Class Controller {
         $this->config[THEME] = $config[THEME] = $theme;
     }
 
+    //设置布局、视图目录和视图等变量
+    public function configViewVars($key, $value) {
+        global $config;
+
+        if (isset($config[$key])) {
+            $config[$key] = $value;
+        }
+
+        if (isset($this->config[$key])) {
+            $this->config[$key] = $value;
+        }
+    }
+
     //初始化
     public function init() {
         //do something
