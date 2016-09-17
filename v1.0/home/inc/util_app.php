@@ -73,14 +73,15 @@ Class AppUtil extends Util{
     }
     
     //通用获取某个控制器的某个动作的网址Url
-    public static function getUrl($controller, $action = 'index', $arrParameters = array()) {
+    public static function getUrl($controller, $action = 'index', $arrParameters = array(), $suffix = '.html') {
         global $config;
 
-        $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . preg_replace('/\/[^\/]*$/', '', $_SERVER['REQUEST_URI']);
+        $proto = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+        $baseUrl = "{$proto}://" . $_SERVER['HTTP_HOST'] . preg_replace('/\/[^\/]*$/', '', $_SERVER['REQUEST_URI']);
 
         $url = "/?controller={$controller}&action={$action}&v={$config[APPVERSION]}";
         if ($config[URLREWRITE]) {  //如果url rewrite开启
-            $url = "/{$controller}_{$action}.html?v={$config[APPVERSION]}";
+            $url = "/{$controller}_{$action}{$suffix}?v={$config[APPVERSION]}";
         }
 
         foreach ($arrParameters as $key => $val) {
@@ -88,8 +89,8 @@ Class AppUtil extends Util{
         }
 
         //添加时间戳
-        $time = time();
-        $url .= "&t={$time}";
+        //$time = time();
+        //$url .= "&t={$time}";
 
         return $baseUrl . self::addLang($url);
     }
