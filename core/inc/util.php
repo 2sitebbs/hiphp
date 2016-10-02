@@ -15,12 +15,15 @@ Class Util{
         return md5($config[PREKEY4PASSWORD] . md5($config[PREKEY4PASSWORD].$password) . $config[PREKEY4PASSWORD]);
     }
 
-    public static function curlGet($url, $post = false, $postFields = array(), $timeout = 2) {
+    public static function curlGet($url, $post = false, $postFields = array(), $timeout = 1) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        //set timeout
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
         if ($post && !empty($postFields)) {
             curl_setopt($ch, CURLOPT_POST, 1);
