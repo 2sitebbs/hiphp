@@ -17,6 +17,41 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 * Developers who need a simple php framework.
 
 
+## Simple DAO functions
+<code>
+//add new user
+$newUser = array(
+    'age' => 10,
+    'sex' => 0,
+);
+$res = $dao_write->addUser($newUser);
+print_r($res);
+
+//get user's data from mysql
+$conditions = array(
+    'age' => '> 10',    //年龄大于10岁
+    'sex' => 1,         //性别 1
+);
+$orderBy = 'name desc';
+$limit = "2,10";
+$arrUsers = $dao_read->getUsers($conditions, $orderBy, $limit);
+print_r($arrUsers);
+
+//update user's data by uid
+$newData = array(
+    'age' => 20,
+);
+$uid = 10;
+$res = $dao_write->updateUserByUid($uid, $newData);
+print_r($res);
+
+//delete user's data by uid
+$uid = 10;
+$res = $dao_write->deleteUserByUid($uid);
+print_r($res);
+</code>
+
+
 ## Directory tree of HiPHP
 <pre>
 │── core
