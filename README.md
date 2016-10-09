@@ -18,7 +18,7 @@ HiPHP is a lightweight php framework, which based on <strong>MVC</strong> and <s
 
 
 ## Simple DAO functions
-<code>
+'''php
 //add new user
 $newUser = array(
     'age' => 10,
@@ -49,7 +49,7 @@ print_r($res);
 $uid = 10;
 $res = $dao_write->deleteUserByUid($uid);
 print_r($res);
-</code>
+'''
 
 
 ## Directory tree of HiPHP
