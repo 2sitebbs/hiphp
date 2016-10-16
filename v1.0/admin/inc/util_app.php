@@ -18,9 +18,12 @@ Class AppUtil extends Util{
     /**
      * 获取cdn图片域名
      */
-    public static function getCDNImageDomain($path = 'weikanjia') {
-        $domain = "http://img.2sitebbs.com/{$path}/";
-        return $domain;
+    public static function getCDNImageDomain($path = '') {
+        //TODO: implement cdn url
+        return '';
+
+        //$domain = "http://img.2sitebbs.com/{$path}/";
+        //return $domain;
     }
 
     //获取图片路径
